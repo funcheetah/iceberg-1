@@ -93,7 +93,7 @@ public abstract class AvroSchemaWithTypeVisitor<T> {
     } else { // complex union case
       Preconditions.checkArgument(type instanceof Types.StructType,
           "Cannot visit invalid Iceberg type: %s for Avro complex union type: %s", type, union);
-
+      
       Map<String, Integer> fieldNameToId = (Map) union.getObjectProp(SchemaToType.AVRO_FIELD_NAME_TO_ICEBERG_ID);
       for (Schema branch : types) {
         if (branch.getType() == Schema.Type.NULL) {

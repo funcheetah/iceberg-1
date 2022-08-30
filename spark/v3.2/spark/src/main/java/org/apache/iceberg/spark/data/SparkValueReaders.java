@@ -305,6 +305,10 @@ public class SparkValueReaders {
     private final Schema schema;
     private final List<Schema> branches;
     private final ValueReader[] readers;
+<<<<<<< HEAD
+=======
+    private int nullIndex;
+>>>>>>> b0e2ab7a586049fa228ed710fa2e917e489ccfcb
     private final int[] projectedFieldIdsToIdxInReturnedRow;
     private boolean isTagFieldProjected;
     private int numOfFieldsInReturnedRow;
