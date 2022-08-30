@@ -21,6 +21,7 @@ package org.apache.iceberg.avro;
 
 import java.util.Deque;
 import java.util.List;
+import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.relocated.com.google.common.collect.Lists;
@@ -95,13 +96,24 @@ public abstract class AvroSchemaWithTypeVisitor<T> {
 
       List<Types.NestedField> fields = type.asStructType().fields();
       // start index from 1 because 0 is the tag field which doesn't exist in the original Avro schema
-      int index = 1;
+      Map<String, Integer> fieldNameToId = (Map) union.getObjectProp(SchemaToType.AVRO_FIELD_NAME_TO_ICEBERG_ID);
       for (Schema branch : types) {
         if (branch.getType() == Schema.Type.NULL) {
           options.add(visit((Type) null, branch, visitor));
         } else {
-          options.add(visit(fields.get(index).type(), branch, visitor));
-          index += 1;
+          String name = branch.getType().equals(Schema.Type.RECORD) ? branch.getName() : branch.getType().getName();
+          if (fieldNameToId.containsKey(name)) {
+            int fieldId = fieldNameToId.get(name);
+            Types.NestedField branchType = type.asStructType().field(fieldId);
+            if (branchType != null) {
+              options.add(visit(branchType.type(), branch, visitor));
+            } else {
+              Type pseudoBranchType = AvroSchemaUtil.convert(branch);
+              options.add(visit(pseudoBranchType, branch, visitor));
+            }
+          } else {
+            options.add(visit((Type) null, branch, visitor));
+          }
         }
       }
     }
