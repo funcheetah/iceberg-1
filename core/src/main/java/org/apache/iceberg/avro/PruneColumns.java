@@ -338,6 +338,11 @@ class PruneColumns extends AvroSchemaVisitor<Schema> {
         branches.add(visitResults.get(i));
       }
     }
-    return Schema.createUnion(branches);
+    Schema schema = Schema.createUnion(branches);
+    if (record.getObjectProp(SchemaToType.AVRO_FIELD_NAME_TO_ICEBERG_ID) != null) {
+      schema.addProp(SchemaToType.AVRO_FIELD_NAME_TO_ICEBERG_ID,
+          record.getObjectProp(SchemaToType.AVRO_FIELD_NAME_TO_ICEBERG_ID));
+    }
+    return schema;
   }
 }
